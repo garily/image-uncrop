@@ -456,7 +456,7 @@
         colorPicker.addEventListener('input', (e) => { currentFillColor = e.target.value; draw(); });
         colorPicker.addEventListener('change', (e) => { saveState(); });
         eyeDropperBtn.addEventListener('click', async () => {
-            if (!window.EyeDropper) return alert("Your browser doesn't support the Eyedropper API yet. Please tap the color square to pick manually.");
+            if (!window.EyeDropper) return alert("Your browser doesn't support the web Eyedropper API directly. However, you can use the eyedropper tool built into your system's native color picker by tapping the color square!");
             try {
                 const res = await new EyeDropper().open();
                 currentFillColor = res.sRGBHex; colorPicker.value = currentFillColor; 

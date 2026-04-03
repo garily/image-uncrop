@@ -34,8 +34,8 @@ Because this project has zero dependencies and requires no build pipeline, local
 
 ## 📝 Browser Support
 
-* **Chrome / Edge / Opera:** Full support (including the native Eyedropper API).
-* **Safari / Firefox:** Full support for core features (Eyedropper API falls back to standard OS color picker).
+* **Chrome / Edge / Opera:** Full support (including the native web Eyedropper API).
+* **Safari / Firefox:** Full support for core features (Use the color square to access the native OS eyedropper tool).
 * **Mobile (iOS/Android):** Full support with touch-optimized pointer events.
 
 ## 👤 Author
