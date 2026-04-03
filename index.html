@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="A simple, fast, and privacy-first static web utility to uncrop and extend images using pure colors directly in your browser.">
+    <title>Simple Image Uncrop Utility</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-color: #f4f4f5;
+            --workspace-bg: #d4d4d8;
+            --border-color: #e4e4e7;
+            --handle-color: #3b82f6;
+        }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100dvh; 
+            overflow: hidden;
+        }
+        
+        /* Desktop Toolbar */
+        .toolbar {
+            background: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap; 
+            justify-content: center;
+            width: 100%;
+            max-width: 1300px;
+            z-index: 10;
+            flex-shrink: 0; 
+        }
+        
+        .tool-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-left: 2px solid var(--border-color);
+            padding-left: 15px;
+        }
+        .tool-group:first-child { border-left: none; padding-left: 0; }
+        
+        .input-pair { display: flex; align-items: center; gap: 5px; }
+        .zoom-wrap { display: flex; align-items: center; gap: 8px; }
+        
+        button, input[type="file"]::file-selector-button {
+            background-color: #18181b;
+            color: white;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            font-weight: 500;
+        }
+        button:hover, input[type="file"]::file-selector-button:hover { background-color: #3f3f46; }
+        .save-btn { background-color: #16a34a !important; }
+        .save-btn:hover { background-color: #15803d !important; }
+        
+        input[type="number"] { width: 65px; padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 16px; }
+        input[type="color"] { -webkit-appearance: none; border: none; width: 34px; height: 34px; border-radius: 4px; cursor: pointer; padding: 0; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 4px; }
+        input[type="file"] { max-width: 220px; font-size: 14px; }
+        label { font-size: 14px; font-weight: 500; color: #52525b; }
+
+        /* Workspace & Canvas */
+        .workspace-container {
+            flex-grow: 1;
+            width: 100%;
+            background-color: var(--workspace-bg);
+            border-radius: 12px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            display: none;
+        }
+        .scroll-area { width: 6000px; height: 6000px; position: relative; } 
+        #zoomWrapper { position: absolute; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .canvas-wrapper { position: absolute; top: 0; left: 0; transform-origin: top left; }
+        canvas { display: block; background: repeating-conic-gradient(#e4e4e7 0% 25%, transparent 0% 50%) 50% / 20px 20px; }
+
+        /* Drag Handles */
+        .handle {
+            position: absolute; background-color: white; border: 2px solid var(--handle-color);
+            border-radius: 50%; width: 14px; height: 14px; 
+            transform: translate(-50%, -50%) scale(var(--inv-zoom, 1)); z-index: 5;
+            touch-action: none; 
+        }
+        .handle::after { content: ''; position: absolute; top: -15px; left: -15px; right: -15px; bottom: -15px; }
+        
+        .handle-nw { top: 0; left: 0; cursor: nwse-resize; }
+        .handle-n  { top: 0; left: 50%; cursor: ns-resize; }
+        .handle-ne { top: 0; left: 100%; cursor: nesw-resize; }
+        .handle-w  { top: 50%; left: 0; cursor: ew-resize; }
+        .handle-e  { top: 50%; left: 100%; cursor: ew-resize; }
+        .handle-sw { top: 100%; left: 0; cursor: nesw-resize; }
+        .handle-s  { top: 100%; left: 50%; cursor: ns-resize; }
+        .handle-se { top: 100%; left: 100%; cursor: nwse-resize; }
+
+        .image-outline {
+            position: absolute; border: 1px dashed rgba(255, 255, 255, 0.8);
+            mix-blend-mode: difference; pointer-events: none;
+        }
+
+        /* Footnote */
+        .footnote {
+            width: 100%;
+            text-align: center;
+            font-size: 12px;
+            color: #71717a;
+            padding-top: 12px;
+            flex-shrink: 0;
+            margin-top: auto;
+        }
+        .footnote a {
+            color: #52525b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .footnote a:hover {
+            text-decoration: underline;
+        }
+
+        /* Ultra-Compact Mobile Layout Overrides */
+        @media (max-width: 768px) {
+            body { padding: 10px; padding-bottom: 5px; }
+            .toolbar { 
+                flex-direction: column; 
+                gap: 12px; 
+                padding: 12px; 
+                max-height: none; 
+                overflow: visible; 
+            }
+            .tool-group { 
+                border: none; padding: 0; width: 100%; justify-content: space-between; gap: 8px;
+            }
+            
+            /* Row 1: Upload + Save */
+            .mobile-row-1 { display: flex; }
+            #imageUpload { max-width: 65%; font-size: 13px; }
+            .save-btn { flex-grow: 1; padding: 8px; }
+
+            /* Row 2 & 3: 4-Column Inputs */
+            .mobile-row-2, .mobile-row-3 { 
+                display: grid; 
+                grid-template-columns: repeat(4, 1fr); 
+                gap: 6px; 
+            }
+            
+            .input-pair { flex-direction: column; align-items: stretch; gap: 2px; }
+            .input-pair label { font-size: 11px; text-align: center; margin-bottom: 2px; }
+            
+            input[type="number"] { width: 100%; font-size: 16px; padding: 4px; text-align: center; height: 34px; box-sizing: border-box; }
+            input[type="color"], #eyeDropperBtn { width: 100%; height: 34px; padding: 0; border-radius: 6px; box-sizing: border-box; }
+            input[type="color"]::-webkit-color-swatch { border-radius: 4px; }
+            
+            /* Row 4: Center + Zoom */
+            .mobile-row-4 { display: flex; gap: 12px; align-items: center; }
+            .center-btn { height: 34px; padding: 0 12px; }
+            .zoom-wrap { flex-grow: 1; }
+            .zoom-wrap input[type="range"] { flex-grow: 1; min-width: 50px; }
+            #zoomLabel { width: 35px; text-align: right; }
+            
+            .footnote { padding-top: 8px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="toolbar">
+        <div class="tool-group mobile-row-1">
+            <input type="file" id="imageUpload" accept="image/*">
+            <button id="downloadBtn" class="save-btn">Save Image</button>
+        </div>
+
+        <div class="tool-group mobile-row-2">
+            <div class="input-pair"><label title="Canvas Width">Width</label> <input type="number" id="widthInput"></div>
+            <div class="input-pair"><label title="Canvas Height">Height</label> <input type="number" id="heightInput"></div>
+            <div class="input-pair"><label title="Fill Color">Color</label> <input type="color" id="colorPicker" value="#ffffff"></div>
+            <div class="input-pair"><label title="Pick color from image">Pick</label> <button id="eyeDropperBtn">💧</button></div>
+        </div>
+
+        <div class="tool-group mobile-row-3">
+            <div class="input-pair"><label title="Top Margin">Top</label> <input type="number" id="marginTop"></div>
+            <div class="input-pair"><label title="Bottom Margin">Bottom</label> <input type="number" id="marginBottom"></div>
+            <div class="input-pair"><label title="Left Margin">Left</label> <input type="number" id="marginLeft"></div>
+            <div class="input-pair"><label title="Right Margin">Right</label> <input type="number" id="marginRight"></div>
+        </div>
+
+        <div class="tool-group mobile-row-4">
+            <button id="centerBtn" class="center-btn" title="Equalize margins">Center Image</button>
+            <div class="zoom-wrap">
+                <label>Zoom</label>
+                <input type="range" id="zoomSlider" min="0.05" max="2" step="0.05" value="1">
+                <span id="zoomLabel">100%</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="workspace-container" id="workspaceContainer">
+        <div class="scroll-area">
+            <div id="zoomWrapper">
+                <div class="canvas-wrapper" id="canvasWrapper">
+                    <canvas id="canvas"></canvas>
+                    <div class="image-outline" id="imageOutline"></div>
+                    <div class="handle handle-nw" data-dir="nw"></div>
+                    <div class="handle handle-n" data-dir="n"></div>
+                    <div class="handle handle-ne" data-dir="ne"></div>
+                    <div class="handle handle-w" data-dir="w"></div>
+                    <div class="handle handle-e" data-dir="e"></div>
+                    <div class="handle handle-sw" data-dir="sw"></div>
+                    <div class="handle handle-s" data-dir="s"></div>
+                    <div class="handle handle-se" data-dir="se"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="footnote">
+        Author: <a href="[https://github.com/garily](https://github.com/garily)" target="_blank" rel="noopener noreferrer">Gary Li</a>
+    </div>
+
+    <script>
+        const imageUpload = document.getElementById('imageUpload');
+        const colorPicker = document.getElementById('colorPicker');
+        const eyeDropperBtn = document.getElementById('eyeDropperBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const centerBtn = document.getElementById('centerBtn');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        const workspaceContainer = document.getElementById('workspaceContainer');
+        const zoomWrapper = document.getElementById('zoomWrapper');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const imageOutline = document.getElementById('imageOutline');
+        const zoomSlider = document.getElementById('zoomSlider');
+        const zoomLabel = document.getElementById('zoomLabel');
+
+        const widthInput = document.getElementById('widthInput');
+        const heightInput = document.getElementById('heightInput');
+        const marginTop = document.getElementById('marginTop');
+        const marginBottom = document.getElementById('marginBottom');
+        const marginLeft = document.getElementById('marginLeft');
+        const marginRight = document.getElementById('marginRight');
+
+        let img = new Image();
+        let currentFillColor = colorPicker.value;
+        let currentZoom = 1;
+        let imgX = 0, imgY = 0;
+        let zoomWrapperLeft = 3000, zoomWrapperTop = 3000; 
+        const SNAP_TOLERANCE = 15;
+
+        // Undo / Redo
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 30;
+
+        function saveState() {
+            if (historyIndex < history.length - 1) history = history.slice(0, historyIndex + 1);
+            history.push({ cw: canvas.width, ch: canvas.height, ix: imgX, iy: imgY, color: currentFillColor });
+            if (history.length > MAX_HISTORY) history.shift(); else historyIndex++;
+        }
+
+        function restoreState(index) {
+            if (index < 0 || index >= history.length) return;
+            const state = history[index];
+            imgX = state.ix; imgY = state.iy;
+            currentFillColor = state.color; colorPicker.value = state.color;
+            zoomWrapperLeft -= ((state.cw - canvas.width) * currentZoom) / 2;
+            zoomWrapperTop -= ((state.ch - canvas.height) * currentZoom) / 2;
+            updateWrapperPosition(); applyDimensions(state.cw, state.ch); draw();
+        }
+
+        window.addEventListener('keydown', (e) => {
+            const cmdOrCtrl = navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? e.metaKey : e.ctrlKey;
+            if (cmdOrCtrl && e.key.toLowerCase() === 'z') {
+                e.preventDefault();
+                e.shiftKey ? (historyIndex < history.length - 1 && restoreState(++historyIndex)) : (historyIndex > 0 && restoreState(--historyIndex));
+            } else if (cmdOrCtrl && e.key.toLowerCase() === 'y') {
+                e.preventDefault();
+                historyIndex < history.length - 1 && restoreState(++historyIndex);
+            }
+        });
+
+        // Initialize
+        imageUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                img.onload = () => {
+                    workspaceContainer.style.display = 'block';
+                    imgX = 0; imgY = 0; currentZoom = 1; zoomWrapperLeft = 3000; zoomWrapperTop = 3000;
+                    history = []; historyIndex = -1;
+                    requestAnimationFrame(() => {
+                        updateWrapperPosition(); applyDimensions(img.width, img.height);
+                        autoZoom(); draw(); saveState();
+                    });
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        function updateWrapperPosition() {
+            zoomWrapper.style.left = `${zoomWrapperLeft}px`; zoomWrapper.style.top = `${zoomWrapperTop}px`;
+        }
+
+        function applyDimensions(w, h) {
+            w = Math.max(10, w); h = Math.max(10, h);
+            canvas.width = w; canvas.height = h;
+            zoomWrapper.style.width = `${w * currentZoom}px`; zoomWrapper.style.height = `${h * currentZoom}px`;
+            syncUI(); updateOutline();
+        }
+
+        function syncUI() {
+            widthInput.value = canvas.width; heightInput.value = canvas.height;
+            marginTop.value = imgY; marginLeft.value = imgX;
+            marginRight.value = canvas.width - (imgX + img.width);
+            marginBottom.value = canvas.height - (imgY + img.height);
+        }
+
+        function updateOutline() {
+            imageOutline.style.left = `${imgX}px`; imageOutline.style.top = `${imgY}px`;
+            imageOutline.style.width = `${img.width}px`; imageOutline.style.height = `${img.height}px`;
+        }
+
+        function draw() {
+            if (!img.src) return;
+            ctx.fillStyle = currentFillColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, imgX, imgY);
+            updateOutline();
+        }
+
+        // Standard Inputs
+        const inputListener = (el, fn) => el.addEventListener('change', (e) => { fn(e); draw(); saveState(); });
+        inputListener(widthInput, (e) => applyDimensions(parseInt(e.target.value) || 10, canvas.height));
+        inputListener(heightInput, (e) => applyDimensions(canvas.width, parseInt(e.target.value) || 10));
+        inputListener(marginTop, (e) => {
+            const diff = (parseInt(e.target.value) || 0) - imgY;
+            imgY += diff; zoomWrapperTop -= diff * currentZoom; updateWrapperPosition();
+            applyDimensions(canvas.width, canvas.height + diff);
+        });
+        inputListener(marginBottom, (e) => applyDimensions(canvas.width, imgY + img.height + (parseInt(e.target.value) || 0)));
+        inputListener(marginLeft, (e) => {
+            const diff = (parseInt(e.target.value) || 0) - imgX;
+            imgX += diff; zoomWrapperLeft -= diff * currentZoom; updateWrapperPosition();
+            applyDimensions(canvas.width + diff, canvas.height);
+        });
+        inputListener(marginRight, (e) => applyDimensions(imgX + img.width + (parseInt(e.target.value) || 0), canvas.height));
+
+        centerBtn.addEventListener('click', () => {
+            imgX = Math.round((canvas.width - img.width) / 2); imgY = Math.round((canvas.height - img.height) / 2);
+            syncUI(); draw(); centerView(); saveState();
+        });
+
+        // Pointer Drag Events (Handles Mouse & Touch)
+        let isDragging = false, hasDragged = false, dragDir = '';
+        let startX, startY, startCW, startCH, startImgX, startImgY, startWL, startWT;
+
+        document.querySelectorAll('.handle').forEach(handle => {
+            handle.addEventListener('pointerdown', (e) => {
+                e.preventDefault();
+                isDragging = true; hasDragged = false; dragDir = e.target.dataset.dir;
+                startX = e.clientX; startY = e.clientY;
+                startCW = canvas.width; startCH = canvas.height;
+                startImgX = imgX; startImgY = imgY;
+                startWL = zoomWrapperLeft; startWT = zoomWrapperTop;
+            });
+        });
+
+        window.addEventListener('pointermove', (e) => {
+            if (!isDragging) return;
+            hasDragged = true;
+            const dx = Math.round((e.clientX - startX) / currentZoom);
+            const dy = Math.round((e.clientY - startY) / currentZoom);
+            let nCW = startCW, nCH = startCH, nIX = startImgX, nIY = startImgY, nWL = startWL, nWT = startWT;
+
+            if (dragDir.includes('e')) {
+                nCW = startCW + dx;
+                if (Math.abs(nCW - (nIX + img.width)) < SNAP_TOLERANCE) nCW = nIX + img.width;
+                if (nCW < 10) nCW = 10;
+            }
+            if (dragDir.includes('w')) {
+                nCW = startCW - dx; nIX = startImgX - dx;
+                if (Math.abs(nIX) < SNAP_TOLERANCE) { nCW += nIX; nIX = 0; }
+                if (nCW < 10) { nIX -= (10 - nCW); nCW = 10; }
+                nWL = startWL - ((nCW - startCW) * currentZoom);
+            }
+            if (dragDir.includes('s')) {
+                nCH = startCH + dy;
+                if (Math.abs(nCH - (nIY + img.height)) < SNAP_TOLERANCE) nCH = nIY + img.height;
+                if (nCH < 10) nCH = 10;
+            }
+            if (dragDir.includes('n')) {
+                nCH = startCH - dy; nIY = startImgY - dy;
+                if (Math.abs(nIY) < SNAP_TOLERANCE) { nCH += nIY; nIY = 0; }
+                if (nCH < 10) { nIY -= (10 - nCH); nCH = 10; }
+                nWT = startWT - ((nCH - startCH) * currentZoom);
+            }
+            imgX = nIX; imgY = nIY; zoomWrapperLeft = nWL; zoomWrapperTop = nWT;
+            updateWrapperPosition(); applyDimensions(nCW, nCH); draw();
+        });
+
+        const endDrag = () => {
+            if (isDragging && hasDragged) saveState();
+            isDragging = false; hasDragged = false;
+        };
+        window.addEventListener('pointerup', endDrag);
+        window.addEventListener('pointercancel', endDrag);
+
+        // Zoom Camera
+        function autoZoom() {
+            const padding = window.innerWidth < 768 ? 40 : 100; 
+            const containerW = workspaceContainer.clientWidth - padding;
+            const containerH = workspaceContainer.clientHeight - padding;
+            let scale = Math.min(containerW / img.width, containerH / img.height, 1);
+            zoomSlider.value = scale; applyZoom(scale); centerView(); 
+        }
+
+        function applyZoom(scale) {
+            currentZoom = scale;
+            canvasWrapper.style.transform = `scale(${scale})`;
+            canvasWrapper.style.setProperty('--inv-zoom', 1 / scale);
+            zoomLabel.textContent = `${Math.round(scale * 100)}%`;
+            applyDimensions(canvas.width, canvas.height); 
+        }
+
+        function centerView() {
+            const scaledW = canvas.width * currentZoom; const scaledH = canvas.height * currentZoom;
+            const targetLeft = zoomWrapperLeft + (scaledW / 2) - (workspaceContainer.clientWidth / 2);
+            const targetTop = zoomWrapperTop + (scaledH / 2) - (workspaceContainer.clientHeight / 2);
+            workspaceContainer.scrollTo({ left: targetLeft, top: targetTop, behavior: 'smooth' });
+        }
+
+        zoomSlider.addEventListener('input', (e) => applyZoom(e.target.value));
+
+        // Color & Download
+        colorPicker.addEventListener('input', (e) => { currentFillColor = e.target.value; draw(); });
+        colorPicker.addEventListener('change', (e) => { saveState(); });
+        eyeDropperBtn.addEventListener('click', async () => {
+            if (!window.EyeDropper) return alert("Your browser doesn't support the Eyedropper API yet. Please tap the color square to pick manually.");
+            try {
+                const res = await new EyeDropper().open();
+                currentFillColor = res.sRGBHex; colorPicker.value = currentFillColor; 
+                draw(); saveState();
+            } catch (e) {}
+        });
+        downloadBtn.addEventListener('click', () => {
+            if (!img.src) return;
+            const link = document.createElement('a'); 
+            link.download = `uncropped_${canvas.width}x${canvas.height}.png`;
+            link.href = canvas.toDataURL('image/png'); link.click();
+        });
+    </script>
+</body>
+</html>
