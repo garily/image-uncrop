@@ -91,7 +91,7 @@
             -webkit-overflow-scrolling: touch;
             display: none;
         }
-        .scroll-area { width: 6000px; height: 6000px; position: relative; } 
+        .scroll-area { width: 10000px; height: 10000px; position: relative; } 
         #zoomWrapper { position: absolute; background: white; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
         .canvas-wrapper { position: absolute; top: 0; left: 0; transform-origin: top left; }
         canvas { display: block; background: repeating-conic-gradient(#e4e4e7 0% 25%, transparent 0% 50%) 50% / 20px 20px; }
@@ -365,7 +365,7 @@
         let currentFillColor = colorPicker.value;
         let currentZoom = 1;
         let imgX = 0, imgY = 0;
-        let zoomWrapperLeft = 3000, zoomWrapperTop = 3000; 
+        let zoomWrapperLeft = 5000, zoomWrapperTop = 5000; 
         const SNAP_TOLERANCE = 15;
 
         // Undo / Redo
@@ -408,7 +408,7 @@
             reader.onload = (event) => {
                 img.onload = () => {
                     workspaceContainer.style.display = 'block';
-                    imgX = 0; imgY = 0; currentZoom = 1; zoomWrapperLeft = 3000; zoomWrapperTop = 3000;
+                    imgX = 0; imgY = 0; currentZoom = 1; zoomWrapperLeft = 5000; zoomWrapperTop = 5000;
                     history = []; historyIndex = -1;
                     requestAnimationFrame(() => {
                         updateWrapperPosition(); applyDimensions(img.width, img.height);
@@ -542,17 +542,49 @@
             canvasWrapper.style.transform = `scale(${scale})`;
             canvasWrapper.style.setProperty('--inv-zoom', 1 / scale);
             zoomLabel.textContent = `${Math.round(scale * 100)}%`;
-            applyDimensions(canvas.width, canvas.height); 
+            zoomWrapper.style.width = `${canvas.width * scale}px`;
+            zoomWrapper.style.height = `${canvas.height * scale}px`;
+            draw();
         }
 
         function centerView() {
             const scaledW = canvas.width * currentZoom; const scaledH = canvas.height * currentZoom;
             const targetLeft = zoomWrapperLeft + (scaledW / 2) - (workspaceContainer.clientWidth / 2);
             const targetTop = zoomWrapperTop + (scaledH / 2) - (workspaceContainer.clientHeight / 2);
-            workspaceContainer.scrollTo({ left: targetLeft, top: targetTop, behavior: 'smooth' });
+            workspaceContainer.scrollLeft = targetLeft;
+            workspaceContainer.scrollTop = targetTop;
         }
 
         zoomSlider.addEventListener('input', (e) => applyZoom(e.target.value));
+
+        // Ctrl+wheel or trackpad pinch over the canvas zooms the canvas, not the page
+        workspaceContainer.addEventListener('wheel', (e) => {
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+
+            const newZoom = Math.min(2, Math.max(0.05, currentZoom - e.deltaY * 0.001));
+            const ratio = newZoom / currentZoom;
+
+            // Mouse position relative to the workspaceContainer viewport
+            const rect = workspaceContainer.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            // Scroll offset of the point under the mouse in the scroll-area
+            const scrollX = workspaceContainer.scrollLeft + mx;
+            const scrollY = workspaceContainer.scrollTop  + my;
+
+            // Distance from the zoomWrapper origin to the mouse, in current zoom units
+            const originX = scrollX - zoomWrapperLeft;
+            const originY = scrollY - zoomWrapperTop;
+
+            // After zoom, the zoomWrapper content scales, so adjust scroll to keep originX/Y under mouse
+            zoomSlider.value = newZoom;
+            applyZoom(newZoom);
+
+            workspaceContainer.scrollLeft = zoomWrapperLeft + originX * ratio - mx;
+            workspaceContainer.scrollTop  = zoomWrapperTop  + originY * ratio - my;
+        }, { passive: false });
 
         // Color & Download
         colorPicker.addEventListener('input', (e) => { currentFillColor = e.target.value; draw(); });
