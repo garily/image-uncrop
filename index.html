@@ -161,13 +161,28 @@
         .help-modal dd { margin: 0; font-size: 13px; color: #52525b; }
         .help-modal .close-btn { margin-top: 20px; width: 100%; }
 
+        /* Language Selector */
+        #langSelect, #langSelectMobile {
+            background: none;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: #52525b;
+            font-size: 13px;
+            padding: 4px 6px;
+            cursor: pointer;
+            height: 32px;
+        }
+        #langSelect:hover { background: var(--bg-color); }
+
         /* Footnote */
         /* Desktop: hide help btn from row-1 area, show in toolbar */
         @media (min-width: 769px) {
             .mobile-row-1 .help-btn { display: none; }
+            #langSelectMobile { display: none; }
         }
         @media (max-width: 768px) {
             .toolbar > .help-btn { display: none; }
+            #langSelect { display: none; }
         }
 
         .footnote {
@@ -207,6 +222,7 @@
             #imageUpload { max-width: 60%; font-size: 13px; }
             .save-btn { flex-grow: 1; padding: 8px; }
             .mobile-row-1 .help-btn { flex-shrink: 0; }
+            #langSelectMobile { flex-shrink: 0; height: 34px; font-size: 12px; padding: 0 4px; }
 
             /* Row 2 & 3: 4-Column Inputs */
             .mobile-row-2, .mobile-row-3 { 
@@ -238,51 +254,65 @@
     <div class="toolbar">
         <div class="tool-group mobile-row-1">
             <input type="file" id="imageUpload" accept="image/*">
-            <button id="downloadBtn" class="save-btn">Save Image</button>
+            <button id="downloadBtn" class="save-btn" data-i18n="save" data-i18n-mobile="saveMobile">Save Image</button>
             <button class="help-btn" id="helpBtnMobile" title="Help">?</button>
+            <select id="langSelectMobile">
+                <option value="en-CA">EN</option>
+                <option value="ja-JP">日本語</option>
+                <option value="zh-CHT-TW">正體</option>
+                <option value="zh-CHT-HK">繁體</option>
+                <option value="zh-CHS">简体</option>
+            </select>
         </div>
 
         <div class="tool-group mobile-row-2">
-            <div class="input-pair"><label title="Canvas Width">Width</label> <input type="number" id="widthInput"></div>
-            <div class="input-pair"><label title="Canvas Height">Height</label> <input type="number" id="heightInput"></div>
-            <div class="input-pair"><label title="Fill Color">Color</label> <input type="color" id="colorPicker" value="#ffffff"></div>
-            <div class="input-pair"><label title="Pick color from image">Pick</label> <button id="eyeDropperBtn">💧</button></div>
+            <div class="input-pair"><label data-i18n="width" title="Canvas Width">Width</label> <input type="number" id="widthInput"></div>
+            <div class="input-pair"><label data-i18n="height" title="Canvas Height">Height</label> <input type="number" id="heightInput"></div>
+            <div class="input-pair"><label data-i18n="color" title="Fill Color">Color</label> <input type="color" id="colorPicker" value="#ffffff"></div>
+            <div class="input-pair"><label data-i18n="pick" title="Pick color from image">Pick</label> <button id="eyeDropperBtn">💧</button></div>
         </div>
 
         <div class="tool-group mobile-row-3">
-            <div class="input-pair"><label title="Top Margin">Top</label> <input type="number" id="marginTop"></div>
-            <div class="input-pair"><label title="Bottom Margin">Bottom</label> <input type="number" id="marginBottom"></div>
-            <div class="input-pair"><label title="Left Margin">Left</label> <input type="number" id="marginLeft"></div>
-            <div class="input-pair"><label title="Right Margin">Right</label> <input type="number" id="marginRight"></div>
+            <div class="input-pair"><label data-i18n="top" title="Top Margin">Top</label> <input type="number" id="marginTop"></div>
+            <div class="input-pair"><label data-i18n="bottom" title="Bottom Margin">Bottom</label> <input type="number" id="marginBottom"></div>
+            <div class="input-pair"><label data-i18n="left" title="Left Margin">Left</label> <input type="number" id="marginLeft"></div>
+            <div class="input-pair"><label data-i18n="right" title="Right Margin">Right</label> <input type="number" id="marginRight"></div>
         </div>
 
         <div class="tool-group mobile-row-4">
-            <button id="centerBtn" class="center-btn" title="Equalize margins">Center Image</button>
+            <button id="centerBtn" class="center-btn" data-i18n="center" data-i18n-mobile="centerMobile" title="Equalize margins">Center Image</button>
             <div class="zoom-wrap">
-                <label>Zoom</label>
+                <label data-i18n="zoom">Zoom</label>
                 <input type="range" id="zoomSlider" min="0.05" max="2" step="0.05" value="1">
                 <span id="zoomLabel">100%</span>
             </div>
         </div>
         <button class="help-btn" id="helpBtnDesktop" title="Help">?</button>
+        <select id="langSelect">
+            <option value="en-CA">English</option>
+            <option value="ja-JP">日本語</option>
+            <option value="zh-CHT-TW">正體中文</option>
+            <option value="zh-CHT-HK">繁體中文</option>
+            <option value="zh-CHS">简体中文</option>
+        </select>
     </div>
 
     <div class="help-overlay" id="helpOverlay">
         <div class="help-modal">
-            <h2>How to use</h2>
+            <h2 data-i18n="helpTitle">How to use</h2>
             <dl>
-                <dt>Choose File</dt><dd>Upload any image from your device to get started.</dd>
-                <dt>Drag handles</dt><dd>Drag the 8 blue handles around the image to extend or shrink the canvas in any direction.</dd>
-                <dt>Width / Height</dt><dd>Type exact pixel dimensions to set the total canvas size.</dd>
-                <dt>Top / Bottom / Left / Right</dt><dd>Type exact pixel values to set each margin individually. The canvas resizes to fit.</dd>
-                <dt>Color</dt><dd>Choose the fill color for the extended area.</dd>
-                <dt>Pick</dt><dd>Click 💧 to activate the eyedropper and sample any color from your screen. On Safari/Firefox, tap the color square instead to use the system eyedropper.</dd>
-                <dt>Center Image</dt><dd>Equalizes all margins so the original image is centered on the canvas.</dd>
-                <dt>Zoom</dt><dd>Adjust the preview zoom level. This does not affect the exported image.</dd>
-                <dt>Save Image</dt><dd>Downloads the canvas as a PNG, named with its final dimensions.</dd>
-                <dt>Undo / Redo</dt><dd id="helpUndoText"></dd>
+                <dt data-i18n="helpChooseFileDt">Choose File</dt><dd data-i18n="helpChooseFileDd">Upload any image from your device to get started.</dd>
+                <dt data-i18n="helpHandlesDt">Drag handles</dt><dd data-i18n="helpHandlesDd">Drag the 8 blue handles around the image to extend or shrink the canvas in any direction.</dd>
+                <dt data-i18n="helpSizeDt">Width / Height</dt><dd data-i18n="helpSizeDd">Type exact pixel dimensions to set the total canvas size.</dd>
+                <dt data-i18n="helpMarginsDt">Top / Bottom / Left / Right</dt><dd data-i18n="helpMarginsDd">Type exact pixel values to set each margin individually. The canvas resizes to fit.</dd>
+                <dt data-i18n="helpColorDt">Color</dt><dd data-i18n="helpColorDd">Choose the fill color for the extended area.</dd>
+                <dt data-i18n="helpPickDt">Pick</dt><dd data-i18n="helpPickDd">Click 💧 to activate the eyedropper and sample any color from your screen. On Safari/Firefox, tap the color square instead to use the system eyedropper.</dd>
+                <dt data-i18n="helpCenterDt">Center Image</dt><dd data-i18n="helpCenterDd">Equalizes all margins so the original image is centered on the canvas.</dd>
+                <dt data-i18n="helpZoomDt">Zoom</dt><dd data-i18n="helpZoomDd">Adjust the preview zoom level. This does not affect the exported image.</dd>
+                <dt data-i18n="helpSaveDt">Save Image</dt><dd data-i18n="helpSaveDd">Downloads the canvas as a PNG, named with its final dimensions.</dd>
+                <dt data-i18n="helpUndoDt">Undo / Redo</dt><dd id="helpUndoText"></dd>
             </dl>
-            <button class="close-btn" id="helpClose">Got it</button>
+            <button class="close-btn" id="helpClose" data-i18n="helpClose">Got it</button>
         </div>
     </div>
 
@@ -306,7 +336,7 @@
     </div>
 
     <div class="footnote">
-        Author: <a href="[https://github.com/garily](https://github.com/garily)" target="_blank" rel="noopener noreferrer">Gary Li</a>
+        <span data-i18n="author">Author:</span> <a href="[https://github.com/garily](https://github.com/garily)" target="_blank" rel="noopener noreferrer">Gary Li</a>
     </div>
 
     <script>
@@ -528,26 +558,175 @@
         colorPicker.addEventListener('input', (e) => { currentFillColor = e.target.value; draw(); });
         colorPicker.addEventListener('change', (e) => { saveState(); });
         eyeDropperBtn.addEventListener('click', async () => {
-            if (!window.EyeDropper) return alert("Your browser doesn't support the web Eyedropper API directly. However, you can use the eyedropper tool built into your system's native color picker by tapping the color square!");
+            if (!window.EyeDropper) return alert(STRINGS[langSelect.value]?.eyedropperAlert || STRINGS['en-CA'].eyedropperAlert);
             try {
                 const res = await new EyeDropper().open();
                 currentFillColor = res.sRGBHex; colorPicker.value = currentFillColor; 
                 draw(); saveState();
             } catch (e) {}
         });
-        // Help modal
+        // i18n
+        const STRINGS = {
+            'en-CA': {
+                htmlLang: 'en',
+                save: 'Save Image', width: 'Width', height: 'Height', color: 'Color', pick: 'Pick',
+                top: 'Top', bottom: 'Bottom', left: 'Left', right: 'Right',
+                center: 'Center Image', zoom: 'Zoom',
+                saveMobile: 'Save', centerMobile: 'Center',
+                helpTitle: 'How to use',
+                helpChooseFileDt: 'Choose File',   helpChooseFileDd: 'Upload any image from your device to get started.',
+                helpHandlesDt: 'Drag handles',     helpHandlesDd: 'Drag the 8 blue handles around the image to extend or shrink the canvas in any direction.',
+                helpSizeDt: 'Width / Height',      helpSizeDd: 'Type exact pixel dimensions to set the total canvas size.',
+                helpMarginsDt: 'Top / Bottom / Left / Right', helpMarginsDd: 'Type exact pixel values to set each margin individually. The canvas resizes to fit.',
+                helpColorDt: 'Color',              helpColorDd: 'Choose the fill color for the extended area.',
+                helpPickDt: 'Pick',                helpPickDd: 'Click 💧 to activate the eyedropper and sample any color from your screen. On Safari/Firefox, tap the color square instead to use the system eyedropper.',
+                helpCenterDt: 'Center Image',      helpCenterDd: 'Equalizes all margins so the original image is centered on the canvas.',
+                helpZoomDt: 'Zoom',                helpZoomDd: 'Adjust the preview zoom level. This does not affect the exported image.',
+                helpSaveDt: 'Save Image',          helpSaveDd: 'Downloads the canvas as a PNG, named with its final dimensions.',
+                helpUndoDt: 'Undo / Redo',
+                undoMac: '⌘Z to undo, ⌘⇧Z to redo. Up to 30 steps.',
+                undoPC: 'Ctrl+Z to undo, Ctrl+Y or Ctrl+Shift+Z to redo. Up to 30 steps.',
+                helpClose: 'Got it',
+                eyedropperAlert: "Your browser doesn't support the web Eyedropper API directly. However, you can use the eyedropper tool built into your system's native color picker by tapping the color square!",
+                author: 'Author:',
+            },
+            'ja-JP': {
+                htmlLang: 'ja',
+                save: '保存', width: '幅', height: '高さ', color: '色', pick: '抽出',
+                top: '上', bottom: '下', left: '左', right: '右',
+                center: '中央揃え', zoom: 'ズーム',
+                saveMobile: '保存', centerMobile: '中央',
+                helpTitle: '使い方',
+                helpChooseFileDt: 'ファイル選択',  helpChooseFileDd: 'デバイスから画像をアップロードして開始します。',
+                helpHandlesDt: 'ハンドル操作',     helpHandlesDd: '画像周囲の8つの青いハンドルをドラッグして、キャンバスを任意の方向に拡張・縮小できます。',
+                helpSizeDt: '幅 / 高さ',           helpSizeDd: '正確なピクセル値を入力してキャンバスの合計サイズを設定します。',
+                helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '各余白をピクセル単位で個別に設定できます。キャンバスは自動的にリサイズされます。',
+                helpColorDt: '色',                 helpColorDd: '拡張エリアの塗りつぶし色を選択します。',
+                helpPickDt: '抽出',                helpPickDd: '💧 をクリックしてスポイトを起動し、画面上の任意の色をサンプリングします。Safari/Firefoxでは、カラースクエアをタップしてシステムのスポイトを使用してください。',
+                helpCenterDt: '中央揃え',          helpCenterDd: 'すべての余白を均等にして、元の画像をキャンバスの中央に配置します。',
+                helpZoomDt: 'ズーム',              helpZoomDd: 'プレビューのズームレベルを調整します。エクスポートされる画像には影響しません。',
+                helpSaveDt: '保存',                helpSaveDd: 'キャンバスを最終サイズの名前付きPNGとしてダウンロードします。',
+                helpUndoDt: '元に戻す / やり直し',
+                undoMac: '⌘Z で元に戻す、⌘⇧Z でやり直し。最大30ステップ。',
+                undoPC: 'Ctrl+Z で元に戻す、Ctrl+Y または Ctrl+Shift+Z でやり直し。最大30ステップ。',
+                helpClose: '閉じる',
+                eyedropperAlert: 'お使いのブラウザはWebスポイトAPIに直接対応していません。カラースクエアをタップして、システムのネイティブカラーピッカーのスポイトツールをご利用ください。',
+                author: '作者：',
+            },
+            'zh-CHT-TW': {
+                htmlLang: 'zh-TW',
+                save: '儲存圖片', width: '寬度', height: '高度', color: '顏色', pick: '取色',
+                top: '上', bottom: '下', left: '左', right: '右',
+                center: '置中', zoom: '縮放',
+                saveMobile: '儲存', centerMobile: '置中',
+                helpTitle: '使用說明',
+                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上傳圖片以開始使用。',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
+                helpSizeDt: '寬度 / 高度',         helpSizeDd: '輸入精確的像素尺寸以設定畫布總大小。',
+                helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '分別輸入像素值以設定各邊距，畫布會自動調整大小。',
+                helpColorDt: '顏色',               helpColorDd: '選擇延伸區域的填充顏色。',
+                helpPickDt: '取色',                helpPickDd: '點擊 💧 啟動滴管工具，從螢幕上任意位置取色。Safari/Firefox 請點擊色塊使用系統滴管。',
+                helpCenterDt: '置中',              helpCenterDd: '均等化所有邊距，使原始圖片置中於畫布。',
+                helpZoomDt: '縮放',                helpZoomDd: '調整預覽縮放比例，不影響匯出的圖片。',
+                helpSaveDt: '儲存圖片',            helpSaveDd: '將畫布以最終尺寸命名下載為 PNG 檔案。',
+                helpUndoDt: '復原 / 重做',
+                undoMac: '⌘Z 復原，⌘⇧Z 重做。最多 30 步。',
+                undoPC: 'Ctrl+Z 復原，Ctrl+Y 或 Ctrl+Shift+Z 重做。最多 30 步。',
+                helpClose: '知道了',
+                eyedropperAlert: '您的瀏覽器不直接支援網頁滴管 API。請點擊色塊，使用系統原生色彩選擇器中的滴管工具。',
+                author: '作者：',
+            },
+            'zh-CHT-HK': {
+                htmlLang: 'zh-HK',
+                save: '儲存圖片', width: '闊度', height: '高度', color: '顏色', pick: '拾色',
+                top: '上', bottom: '下', left: '左', right: '右',
+                center: '置中', zoom: '縮放',
+                saveMobile: '儲存', centerMobile: '置中',
+                helpTitle: '使用說明',
+                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上載圖片以開始使用。',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
+                helpSizeDt: '闊度 / 高度',         helpSizeDd: '輸入精確的像素尺寸以設定畫布總大小。',
+                helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '分別輸入像素值以設定各邊距，畫布會自動調整大小。',
+                helpColorDt: '顏色',               helpColorDd: '選擇延伸區域的填充顏色。',
+                helpPickDt: '拾色',                helpPickDd: '點擊 💧 啟動滴管工具，從螢幕上任意位置拾色。Safari/Firefox 請點擊色塊使用系統滴管。',
+                helpCenterDt: '置中',              helpCenterDd: '均等化所有邊距，使原始圖片置中於畫布。',
+                helpZoomDt: '縮放',                helpZoomDd: '調整預覽縮放比例，不影響匯出的圖片。',
+                helpSaveDt: '儲存圖片',            helpSaveDd: '將畫布以最終尺寸命名下載為 PNG 檔案。',
+                helpUndoDt: '復原 / 重做',
+                undoMac: '⌘Z 復原，⌘⇧Z 重做。最多 30 步。',
+                undoPC: 'Ctrl+Z 復原，Ctrl+Y 或 Ctrl+Shift+Z 重做。最多 30 步。',
+                helpClose: '明白了',
+                eyedropperAlert: '您的瀏覽器不直接支援網頁滴管 API。請點擊色塊，使用系統原生顏色選擇器中的滴管工具。',
+                author: '作者：',
+            },
+            'zh-CHS': {
+                htmlLang: 'zh-CN',
+                save: '保存图片', width: '宽度', height: '高度', color: '颜色', pick: '取色',
+                top: '上', bottom: '下', left: '左', right: '右',
+                center: '居中', zoom: '缩放',
+                saveMobile: '保存', centerMobile: '居中',
+                helpTitle: '使用说明',
+                helpChooseFileDt: '选择文件',      helpChooseFileDd: '从设备上传图片以开始使用。',
+                helpHandlesDt: '拖动控点',         helpHandlesDd: '拖动图片周围的8个蓝色控点，可向任意方向延伸或缩小画布。',
+                helpSizeDt: '宽度 / 高度',         helpSizeDd: '输入精确的像素尺寸以设置画布总大小。',
+                helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '分别输入像素值以设置各边距，画布会自动调整大小。',
+                helpColorDt: '颜色',               helpColorDd: '选择延伸区域的填充颜色。',
+                helpPickDt: '取色',                helpPickDd: '点击 💧 启动吸管工具，从屏幕上任意位置取色。Safari/Firefox 请点击色块使用系统吸管。',
+                helpCenterDt: '居中',              helpCenterDd: '均等化所有边距，使原始图片居中于画布。',
+                helpZoomDt: '缩放',                helpZoomDd: '调整预览缩放比例，不影响导出的图片。',
+                helpSaveDt: '保存图片',            helpSaveDd: '将画布以最终尺寸命名下载为 PNG 文件。',
+                helpUndoDt: '撤销 / 重做',
+                undoMac: '⌘Z 撤销，⌘⇧Z 重做。最多 30 步。',
+                undoPC: 'Ctrl+Z 撤销，Ctrl+Y 或 Ctrl+Shift+Z 重做。最多 30 步。',
+                helpClose: '知道了',
+                eyedropperAlert: '您的浏览器不直接支持网页吸管 API。请点击色块，使用系统原生颜色选择器中的吸管工具。',
+                author: '作者：',
+            },
+        };
+
+        function detectLocale() {
+            const langs = navigator.languages || [navigator.language];
+            for (const lang of langs) {
+                const l = lang.toLowerCase();
+                if (l.startsWith('zh')) {
+                    if (l.includes('tw') || l.includes('hant-tw')) return 'zh-CHT-TW';
+                    if (l.includes('hk') || l.includes('mo') || l.includes('hant-hk')) return 'zh-CHT-HK';
+                    if (l.includes('hant')) return 'zh-CHT-TW'; // generic Traditional
+                    return 'zh-CHS'; // zh, zh-CN, zh-Hans → Simplified
+                }
+                if (l.startsWith('ja')) return 'ja-JP';
+            }
+            return 'en-CA';
+        }
+
         const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
         const isTouchOnly = !window.matchMedia('(hover: hover)').matches;
         const helpUndoText = document.getElementById('helpUndoText');
         const helpUndoDt = helpUndoText.previousElementSibling;
-        if (isTouchOnly) {
-            helpUndoDt.remove();
-            helpUndoText.remove();
-        } else {
-            helpUndoText.textContent = isMac
-                ? '⌘Z to undo, ⌘⇧Z to redo. Up to 30 steps.'
-                : 'Ctrl+Z to undo, Ctrl+Y or Ctrl+Shift+Z to redo. Up to 30 steps.';
+        if (isTouchOnly) { helpUndoDt.remove(); helpUndoText.remove(); }
+
+        const isMobile = () => window.innerWidth <= 768;
+
+        function applyLang(locale) {
+            const s = STRINGS[locale] || STRINGS['en-CA'];
+            document.documentElement.lang = s.htmlLang;
+            const mobile = isMobile();
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = mobile && el.dataset.i18nMobile ? el.dataset.i18nMobile : el.dataset.i18n;
+                if (key in s) el.textContent = s[key];
+            });
+            if (!isTouchOnly && helpUndoText.isConnected) {
+                helpUndoText.textContent = isMac ? s.undoMac : s.undoPC;
+            }
+            document.getElementById('langSelect').value = locale;
+            document.getElementById('langSelectMobile').value = locale;
         }
+
+        const langSelect = document.getElementById('langSelect');
+        const langSelectMobile = document.getElementById('langSelectMobile');
+        langSelect.addEventListener('change', (e) => applyLang(e.target.value));
+        langSelectMobile.addEventListener('change', (e) => applyLang(e.target.value));
+
+        applyLang(detectLocale());
+
         const helpOverlay = document.getElementById('helpOverlay');
         const openHelp = () => helpOverlay.classList.add('open');
         const closeHelp = () => helpOverlay.classList.remove('open');
