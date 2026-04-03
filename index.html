@@ -605,6 +605,7 @@
                 top: 'Top', bottom: 'Bottom', left: 'Left', right: 'Right',
                 center: 'Center Image', zoom: 'Zoom',
                 saveMobile: 'Save', centerMobile: 'Center',
+                title: 'Simple Image Uncrop Utility',
                 helpTitle: 'How to use',
                 helpChooseFileDt: 'Choose File',   helpChooseFileDd: 'Upload any image from your device to get started.',
                 helpHandlesDt: 'Drag handles',     helpHandlesDd: 'Drag the 8 blue handles around the image to extend or shrink the canvas in any direction.',
@@ -628,6 +629,7 @@
                 top: '上', bottom: '下', left: '左', right: '右',
                 center: '中央揃え', zoom: 'ズーム',
                 saveMobile: '保存', centerMobile: '中央',
+                title: '画像アンクロップツール',
                 helpTitle: '使い方',
                 helpChooseFileDt: 'ファイル選択',  helpChooseFileDd: 'デバイスから画像をアップロードして開始します。',
                 helpHandlesDt: 'ハンドル操作',     helpHandlesDd: '画像周囲の8つの青いハンドルをドラッグして、キャンバスを任意の方向に拡張・縮小できます。',
@@ -651,8 +653,10 @@
                 top: '上', bottom: '下', left: '左', right: '右',
                 center: '置中', zoom: '縮放',
                 saveMobile: '儲存', centerMobile: '置中',
+                title: '簡易圖片擴展工具',
                 helpTitle: '使用說明',
-                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上傳圖片以開始使用。',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
+                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上傳圖片以開始使用。',
+                helpHandlesDt: '拖曳控點',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
                 helpSizeDt: '寬度 / 高度',         helpSizeDd: '輸入精確的像素尺寸以設定畫布總大小。',
                 helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '分別輸入像素值以設定各邊距，畫布會自動調整大小。',
                 helpColorDt: '顏色',               helpColorDd: '選擇延伸區域的填充顏色。',
@@ -673,8 +677,10 @@
                 top: '上', bottom: '下', left: '左', right: '右',
                 center: '置中', zoom: '縮放',
                 saveMobile: '儲存', centerMobile: '置中',
+                title: '簡易圖片擴展工具',
                 helpTitle: '使用說明',
-                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上載圖片以開始使用。',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
+                helpChooseFileDt: '選擇檔案',      helpChooseFileDd: '從裝置上載圖片以開始使用。',
+                helpHandlesDt: '拖曳控點',         helpHandlesDd: '拖曳圖片周圍的8個藍色控點，可向任意方向延伸或縮小畫布。',
                 helpSizeDt: '闊度 / 高度',         helpSizeDd: '輸入精確的像素尺寸以設定畫布總大小。',
                 helpMarginsDt: '上 / 下 / 左 / 右', helpMarginsDd: '分別輸入像素值以設定各邊距，畫布會自動調整大小。',
                 helpColorDt: '顏色',               helpColorDd: '選擇延伸區域的填充顏色。',
@@ -695,6 +701,7 @@
                 top: '上', bottom: '下', left: '左', right: '右',
                 center: '居中', zoom: '缩放',
                 saveMobile: '保存', centerMobile: '居中',
+                title: '简易图片扩展工具',
                 helpTitle: '使用说明',
                 helpChooseFileDt: '选择文件',      helpChooseFileDd: '从设备上传图片以开始使用。',
                 helpHandlesDt: '拖动控点',         helpHandlesDd: '拖动图片周围的8个蓝色控点，可向任意方向延伸或缩小画布。',
@@ -740,6 +747,7 @@
         function applyLang(locale) {
             const s = STRINGS[locale] || STRINGS['en-CA'];
             document.documentElement.lang = s.htmlLang;
+            document.title = s.title;
             const mobile = isMobile();
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = mobile && el.dataset.i18nMobile ? el.dataset.i18nMobile : el.dataset.i18n;
