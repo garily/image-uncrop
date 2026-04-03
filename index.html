@@ -119,7 +119,57 @@
             mix-blend-mode: difference; pointer-events: none;
         }
 
+        /* Help Modal */
+        .help-btn {
+            background: none;
+            border: 2px solid var(--border-color);
+            color: #52525b;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            padding: 0;
+            font-size: 15px;
+            font-weight: 700;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .help-btn:hover { background: var(--bg-color) !important; color: #18181b; }
+        .help-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .help-overlay.open { display: flex; }
+        .help-modal {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 90dvh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        .help-modal h2 { margin: 0 0 16px; font-size: 17px; }
+        .help-modal dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; align-items: baseline; }
+        .help-modal dt { font-weight: 600; font-size: 13px; color: #18181b; white-space: nowrap; }
+        .help-modal dd { margin: 0; font-size: 13px; color: #52525b; }
+        .help-modal .close-btn { margin-top: 20px; width: 100%; }
+
         /* Footnote */
+        /* Desktop: hide help btn from row-1 area, show in toolbar */
+        @media (min-width: 769px) {
+            .mobile-row-1 .help-btn { display: none; }
+        }
+        @media (max-width: 768px) {
+            .toolbar > .help-btn { display: none; }
+        }
+
         .footnote {
             width: 100%;
             text-align: center;
@@ -154,8 +204,9 @@
             
             /* Row 1: Upload + Save */
             .mobile-row-1 { display: flex; }
-            #imageUpload { max-width: 65%; font-size: 13px; }
+            #imageUpload { max-width: 60%; font-size: 13px; }
             .save-btn { flex-grow: 1; padding: 8px; }
+            .mobile-row-1 .help-btn { flex-shrink: 0; }
 
             /* Row 2 & 3: 4-Column Inputs */
             .mobile-row-2, .mobile-row-3 { 
@@ -188,6 +239,7 @@
         <div class="tool-group mobile-row-1">
             <input type="file" id="imageUpload" accept="image/*">
             <button id="downloadBtn" class="save-btn">Save Image</button>
+            <button class="help-btn" id="helpBtnMobile" title="Help">?</button>
         </div>
 
         <div class="tool-group mobile-row-2">
@@ -211,6 +263,26 @@
                 <input type="range" id="zoomSlider" min="0.05" max="2" step="0.05" value="1">
                 <span id="zoomLabel">100%</span>
             </div>
+        </div>
+        <button class="help-btn" id="helpBtnDesktop" title="Help">?</button>
+    </div>
+
+    <div class="help-overlay" id="helpOverlay">
+        <div class="help-modal">
+            <h2>How to use</h2>
+            <dl>
+                <dt>Choose File</dt><dd>Upload any image from your device to get started.</dd>
+                <dt>Drag handles</dt><dd>Drag the 8 blue handles around the image to extend or shrink the canvas in any direction.</dd>
+                <dt>Width / Height</dt><dd>Type exact pixel dimensions to set the total canvas size.</dd>
+                <dt>Top / Bottom / Left / Right</dt><dd>Type exact pixel values to set each margin individually. The canvas resizes to fit.</dd>
+                <dt>Color</dt><dd>Choose the fill color for the extended area.</dd>
+                <dt>Pick</dt><dd>Click 💧 to activate the eyedropper and sample any color from your screen. On Safari/Firefox, tap the color square instead to use the system eyedropper.</dd>
+                <dt>Center Image</dt><dd>Equalizes all margins so the original image is centered on the canvas.</dd>
+                <dt>Zoom</dt><dd>Adjust the preview zoom level. This does not affect the exported image.</dd>
+                <dt>Save Image</dt><dd>Downloads the canvas as a PNG, named with its final dimensions.</dd>
+                <dt>Undo / Redo</dt><dd id="helpUndoText"></dd>
+            </dl>
+            <button class="close-btn" id="helpClose">Got it</button>
         </div>
     </div>
 
@@ -463,6 +535,27 @@
                 draw(); saveState();
             } catch (e) {}
         });
+        // Help modal
+        const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+        const isTouchOnly = !window.matchMedia('(hover: hover)').matches;
+        const helpUndoText = document.getElementById('helpUndoText');
+        const helpUndoDt = helpUndoText.previousElementSibling;
+        if (isTouchOnly) {
+            helpUndoDt.remove();
+            helpUndoText.remove();
+        } else {
+            helpUndoText.textContent = isMac
+                ? '⌘Z to undo, ⌘⇧Z to redo. Up to 30 steps.'
+                : 'Ctrl+Z to undo, Ctrl+Y or Ctrl+Shift+Z to redo. Up to 30 steps.';
+        }
+        const helpOverlay = document.getElementById('helpOverlay');
+        const openHelp = () => helpOverlay.classList.add('open');
+        const closeHelp = () => helpOverlay.classList.remove('open');
+        document.getElementById('helpBtnDesktop').addEventListener('click', openHelp);
+        document.getElementById('helpBtnMobile').addEventListener('click', openHelp);
+        document.getElementById('helpClose').addEventListener('click', closeHelp);
+        helpOverlay.addEventListener('click', (e) => { if (e.target === helpOverlay) closeHelp(); });
+
         downloadBtn.addEventListener('click', () => {
             if (!img.src) return;
             const link = document.createElement('a'); 
