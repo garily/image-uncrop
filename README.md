@@ -5,7 +5,7 @@
 
 A lightweight, purely static web utility designed to easily "uncrop" or extend the canvas of an image using pure background colors. It runs entirely in your browser, ensuring your images never leave your device. 
 
-**Try it out live: [image-uncrop.github.io](https://image-uncrop.github.io)**
+**Try it out live: [garily.github.io/image-uncrop](https://garily.github.io/image-uncrop)**
 
 ## ✨ Features
 
