@@ -16,3 +16,9 @@ _site/
 # counterproductive to check this file into the repository.
 # Details at https://github.com/github/pages-gem/issues/768
 Gemfile.lock
+
+# Node / Playwright (dev only, never deployed)
+node_modules/
+package-lock.json
+test-results/
+playwright-report/

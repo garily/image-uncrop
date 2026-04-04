@@ -1,0 +1,7 @@
+{
+  "name": "image-uncropper-tests",
+  "private": true,
+  "devDependencies": {
+    "@playwright/test": "^1.44.0"
+  }
+}

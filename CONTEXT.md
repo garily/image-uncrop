@@ -56,6 +56,7 @@ Future contributors/AIs must preserve the following mechanics, as they solve spe
 - **Supported locales:** `en-CA`, `ja-JP`, `zh-CHT-TW`, `zh-CHT-HK`, `zh-CHS`.
 - **Auto-detection:** On load, `detectLocale()` iterates `navigator.languages` and maps to the closest supported locale. Falls back to `en-CA`.
 - **Mechanism:** All translatable elements carry a `data-i18n` attribute keyed into the `STRINGS` object. `applyLang(locale)` iterates them and sets `textContent`. Elements that need a shorter string on mobile also carry `data-i18n-mobile`, which `applyLang` uses when `window.innerWidth <= 768`.
+- **Page title:** `document.title` is set directly in `applyLang` from the `title` key in each locale's `STRINGS` entry — the `<title>` tag cannot use `data-i18n` as it is not a visible DOM element.
 - **Two language selectors:** `#langSelect` (desktop toolbar) and `#langSelectMobile` (mobile row 1, next to the help button). They are kept in sync by `applyLang`. Each is hidden on the opposite breakpoint via `@media`.
 - **Keyboard shortcut strings** (`undoMac` / `undoPC`) are chosen at runtime based on `navigator.platform`. The undo/redo row is removed entirely from the help modal on touch-only devices (`hover: hover` media query).
 - **"Choose file" button** is the browser's native file-selector button and cannot be localised — this is intentional. The OS renders it in the system language automatically.
@@ -63,6 +64,20 @@ Future contributors/AIs must preserve the following mechanics, as they solve spe
 ## UI Features
 - **Help modal:** A `?` button (desktop: end of toolbar; mobile: row 1) opens an overlay modal with a `<dl>` describing every control. Clicking the backdrop or "Got it" closes it.
 - **Footnote author label** uses `data-i18n="author"` so the "Author:" prefix is translated; the `<a>` link is a sibling and is never overwritten.
+
+## Testing & CI
+- **Framework:** [Playwright](https://playwright.dev/) (`@playwright/test`) — the only dev dependency. Never bundled into `index.html`.
+- **Test file:** `tests/app.spec.js` — 38 tests covering i18n detection, language switching, help modal, image loading, margin/width/height inputs, center button, undo/redo, zoom, color picker, and save filename.
+- **Config:** `playwright.config.js` — uses headless Chromium, loads `index.html` via `file://` (no server needed).
+- **Keyboard shortcut handling in tests:** The app uses `Meta+Z` on macOS and `Ctrl+Z` on other platforms. Tests detect `process.platform === 'darwin'` and send the correct key combination accordingly.
+- **Input filling:** Playwright's `fill()` appends on `<input type="number">` rather than replacing. Tests use triple-click to select-all before filling.
+- **CI:** `.github/workflows/test.yml` runs on every push/PR. Installs Playwright + Chromium via `npx playwright install chromium --with-deps`, then runs the suite. Uploads a Playwright HTML report as an artifact on failure.
+- **Local setup:**
+  ```bash
+  npm install
+  npx playwright install chromium
+  npx playwright test
+  ```
 
 ## Future Feature Guidelines
 If adding new features, they must adhere to the single-file constraint. UI additions must be tested against the narrow `320px` width of an iPhone SE to ensure the 4-column mobile layout does not break.

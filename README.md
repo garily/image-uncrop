@@ -1,9 +1,13 @@
 # Simple Image Uncrop Utility 🖼️
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Available-success?style=for-the-badge)](https://image-uncrop.github.io)
-[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0-blue?style=for-the-badge)](#)
+[![Single File](https://img.shields.io/badge/App-Single_HTML_File-blue?style=for-the-badge)](#)
+[![Zero Dependencies](https://img.shields.io/badge/Runtime_Dependencies-0-blue?style=for-the-badge)](#)
+[![Works Offline](https://img.shields.io/badge/Works-Offline-informational?style=for-the-badge)](#)
 
-A lightweight, purely static web utility designed to easily "uncrop" or extend the canvas of an image using pure background colors. It runs entirely in your browser, ensuring your images never leave your device. 
+A lightweight, purely static web utility designed to easily "uncrop" or extend the canvas of an image using pure background colors. It runs entirely in your browser, ensuring your images never leave your device.
+
+> **Single file. No install. Works offline.** The entire app is one `index.html` file — no build step, no dependencies, no server. Save the file to your device and open it in any browser, even without an internet connection.
 
 **Try it out live: [garily.github.io/image-uncrop](https://garily.github.io/image-uncrop)**
 
@@ -25,12 +29,37 @@ A lightweight, purely static web utility designed to easily "uncrop" or extend t
 
 ## 🛠️ Local Development
 
-Because this project has zero dependencies and requires no build pipeline, local development is as simple as it gets:
+The entire app is a single `index.html` file with no runtime dependencies and no build pipeline. To use or develop it locally:
 
 1. Clone the repository:
    `git clone https://github.com/garily/image-uncrop.github.io.git`
-2. Open the directory.
-3. Double-click `index.html` to open it in any modern web browser.
+2. Double-click `index.html` to open it in any modern web browser.
+
+That's it. No `npm install`, no build step, no server required. You can also just **save the `index.html` file from the live demo** and open it directly — it works fully offline.
+
+## 🧪 Testing
+
+The app is tested with [Playwright](https://playwright.dev/) — the only dev dependency, never bundled into the deployed `index.html`.
+
+**Run tests locally:**
+```bash
+npm install
+npx playwright install chromium
+npx playwright test
+```
+
+The test suite (`tests/app.spec.js`) covers 38 cases across:
+- i18n auto-detection and manual language switching
+- Help modal open/close and translation
+- Image loading and canvas dimensions
+- Margin, width, and height inputs
+- Center Image button
+- Undo / Redo (keyboard shortcuts)
+- Zoom slider
+- Color picker
+- Save button filename
+
+**CI:** Tests run automatically on every push and pull request via GitHub Actions (`.github/workflows/test.yml`). A Playwright HTML report is uploaded as an artifact on failure.
 
 ## 📝 Browser Support
 
