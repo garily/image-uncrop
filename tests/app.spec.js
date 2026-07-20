@@ -94,6 +94,17 @@ test.describe('i18n — manual language switcher', () => {
         await expect(page).toHaveTitle('画像アンクロップツール');
     });
 
+    test('exposes a skip link and a main landmark for keyboard users', async ({ page }) => {
+        await load(page);
+        await expect(page.locator('.skip-link')).toHaveAttribute('href', '#mainContent');
+        await expect(page.locator('main')).toHaveAttribute('id', 'mainContent');
+    });
+
+    test('gives the mobile language selector an accessible name', async ({ page }) => {
+        await load(page);
+        await expect(page.locator('#langSelectMobile')).toHaveAttribute('aria-label', 'Choose language');
+    });
+
     test('switching to Simplified Chinese updates labels', async ({ page }) => {
         await load(page);
         await page.locator('#langSelect').selectOption('zh-CHS');

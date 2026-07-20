@@ -52,12 +52,20 @@
         :root {
             --bg-color: #f4f4f5;
             --workspace-bg: #d4d4d8;
-            --border-color: #e4e4e7;
-            --handle-color: #3b82f6;
+            --border-color: #d4d4d8;
+            --handle-color: #2563eb;
+            --text-color: #18181b;
+            --muted-text: #27272a;
+            --secondary-text: #3f3f46;
+            --button-bg: #18181b;
+            --button-hover: #3f3f46;
+            --save-bg: #166534;
+            --save-hover: #14532d;
         }
         body {
             font-family: system-ui, -apple-system, sans-serif;
             background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 15px;
             display: flex;
@@ -98,7 +106,7 @@
         .zoom-wrap { display: flex; align-items: center; gap: 8px; }
         
         button, input[type="file"]::file-selector-button {
-            background-color: #18181b;
+            background-color: var(--button-bg);
             color: white;
             border: none;
             padding: 8px 14px;
@@ -108,16 +116,16 @@
             transition: background-color 0.2s;
             font-weight: 500;
         }
-        button:hover, input[type="file"]::file-selector-button:hover { background-color: #3f3f46; }
-        .save-btn { background-color: #16a34a !important; }
-        .save-btn:hover { background-color: #15803d !important; }
+        button:hover, input[type="file"]::file-selector-button:hover { background-color: var(--button-hover); }
+        .save-btn { background-color: var(--save-bg) !important; }
+        .save-btn:hover { background-color: var(--save-hover) !important; }
         
-        input[type="number"] { width: 65px; padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 16px; }
+        input[type="number"] { width: 65px; padding: 6px; border: 1px solid var(--border-color); border-radius: 4px; font-size: 16px; color: var(--text-color); }
         input[type="color"] { -webkit-appearance: none; border: none; width: 34px; height: 34px; border-radius: 4px; cursor: pointer; padding: 0; }
         input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
         input[type="color"]::-webkit-color-swatch { border: 2px solid var(--border-color); border-radius: 4px; }
         input[type="file"] { max-width: 220px; font-size: 14px; }
-        label { font-size: 14px; font-weight: 500; color: #52525b; }
+        label { font-size: 14px; font-weight: 500; color: var(--secondary-text); }
 
         /* Workspace & Canvas */
         .workspace-container {
@@ -162,7 +170,7 @@
         .help-btn {
             background: none;
             border: 2px solid var(--border-color);
-            color: #52525b;
+            color: var(--secondary-text);
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -172,7 +180,7 @@
             line-height: 1;
             flex-shrink: 0;
         }
-        .help-btn:hover { background: var(--bg-color) !important; color: #18181b; }
+        .help-btn:hover { background: var(--bg-color) !important; color: var(--text-color); }
         .help-overlay {
             display: none;
             position: fixed;
@@ -205,7 +213,7 @@
             background: none;
             border: 1px solid var(--border-color);
             border-radius: 6px;
-            color: #52525b;
+            color: var(--muted-text);
             font-size: 13px;
             padding: 4px 6px;
             cursor: pointer;
@@ -228,18 +236,53 @@
             width: 100%;
             text-align: center;
             font-size: 12px;
-            color: #71717a;
+            color: var(--secondary-text);
             padding-top: 12px;
             flex-shrink: 0;
             margin-top: auto;
         }
         .footnote a {
-            color: #52525b;
+            color: var(--text-color);
             text-decoration: none;
             font-weight: 600;
         }
         .footnote a:hover {
             text-decoration: underline;
+        }
+
+        /* Skip Link */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--button-bg);
+            color: white;
+            padding: 8px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 6px 0;
+        }
+        .skip-link:focus {
+            top: 0;
+        }
+        .app-main {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            min-height: 0;
         }
 
         /* Ultra-Compact Mobile Layout Overrides */
@@ -289,13 +332,16 @@
     </style>
 </head>
 <body>
+    <a class="skip-link" href="#mainContent">Skip to main content</a>
 
+    <main id="mainContent" class="app-main">
     <div class="toolbar">
         <div class="tool-group mobile-row-1">
             <input type="file" id="imageUpload" accept="image/*" aria-label="Upload image file">
             <button id="downloadBtn" class="save-btn" data-i18n="save" data-i18n-mobile="saveMobile">Save Image</button>
             <button class="help-btn" id="helpBtnMobile" title="Help">?</button>
-            <select id="langSelectMobile">
+            <label class="sr-only" for="langSelectMobile">Choose language</label>
+            <select id="langSelectMobile" aria-label="Choose language">
                 <option value="en-CA">EN</option>
                 <option value="ja-JP">日本語</option>
                 <option value="zh-CHT-TW">正體</option>
@@ -327,7 +373,8 @@
             </div>
         </div>
         <button class="help-btn" id="helpBtnDesktop" title="Help">?</button>
-        <select id="langSelect">
+        <label class="sr-only" for="langSelect">Choose language</label>
+        <select id="langSelect" aria-label="Choose language">
             <option value="en-CA">English</option>
             <option value="ja-JP">日本語</option>
             <option value="zh-CHT-TW">正體中文</option>
@@ -379,6 +426,7 @@
         &nbsp;·&nbsp;
         <a href="https://github.com/garily/image-uncrop" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
+    </main>
 
     <script>
         const imageUpload = document.getElementById('imageUpload');
