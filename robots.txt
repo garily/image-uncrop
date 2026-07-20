@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://garily.github.io/image-uncrop/sitemap.xml
