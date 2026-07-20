@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="A simple, fast, and privacy-first static web utility to uncrop and extend images using pure colors directly in your browser.">
     <!-- Canonical URL -->
     <link rel="canonical" href="https://garily.github.io/image-uncrop/" />
@@ -292,7 +292,7 @@
 
     <div class="toolbar">
         <div class="tool-group mobile-row-1">
-            <input type="file" id="imageUpload" accept="image/*">
+            <input type="file" id="imageUpload" accept="image/*" aria-label="Upload image file">
             <button id="downloadBtn" class="save-btn" data-i18n="save" data-i18n-mobile="saveMobile">Save Image</button>
             <button class="help-btn" id="helpBtnMobile" title="Help">?</button>
             <select id="langSelectMobile">
@@ -305,23 +305,23 @@
         </div>
 
         <div class="tool-group mobile-row-2">
-            <div class="input-pair"><label data-i18n="width" title="Canvas Width">Width</label> <input type="number" id="widthInput"></div>
-            <div class="input-pair"><label data-i18n="height" title="Canvas Height">Height</label> <input type="number" id="heightInput"></div>
-            <div class="input-pair"><label data-i18n="color" title="Fill Color">Color</label> <input type="color" id="colorPicker" value="#ffffff"></div>
-            <div class="input-pair"><label data-i18n="pick" title="Pick color from image">Pick</label> <button id="eyeDropperBtn">💧</button></div>
+            <div class="input-pair"><label for="widthInput" data-i18n="width" title="Canvas Width">Width</label> <input type="number" id="widthInput"></div>
+            <div class="input-pair"><label for="heightInput" data-i18n="height" title="Canvas Height">Height</label> <input type="number" id="heightInput"></div>
+            <div class="input-pair"><label for="colorPicker" data-i18n="color" title="Fill Color">Color</label> <input type="color" id="colorPicker" value="#ffffff"></div>
+            <div class="input-pair"><label for="eyeDropperBtn" data-i18n="pick" title="Pick color from image">Pick</label> <button id="eyeDropperBtn" aria-label="Eyedropper tool to pick color from image">💧</button></div>
         </div>
 
         <div class="tool-group mobile-row-3">
-            <div class="input-pair"><label data-i18n="top" title="Top Margin">Top</label> <input type="number" id="marginTop"></div>
-            <div class="input-pair"><label data-i18n="bottom" title="Bottom Margin">Bottom</label> <input type="number" id="marginBottom"></div>
-            <div class="input-pair"><label data-i18n="left" title="Left Margin">Left</label> <input type="number" id="marginLeft"></div>
-            <div class="input-pair"><label data-i18n="right" title="Right Margin">Right</label> <input type="number" id="marginRight"></div>
+            <div class="input-pair"><label for="marginTop" data-i18n="top" title="Top Margin">Top</label> <input type="number" id="marginTop"></div>
+            <div class="input-pair"><label for="marginBottom" data-i18n="bottom" title="Bottom Margin">Bottom</label> <input type="number" id="marginBottom"></div>
+            <div class="input-pair"><label for="marginLeft" data-i18n="left" title="Left Margin">Left</label> <input type="number" id="marginLeft"></div>
+            <div class="input-pair"><label for="marginRight" data-i18n="right" title="Right Margin">Right</label> <input type="number" id="marginRight"></div>
         </div>
 
         <div class="tool-group mobile-row-4">
             <button id="centerBtn" class="center-btn" data-i18n="center" data-i18n-mobile="centerMobile" title="Equalize margins">Center Image</button>
             <div class="zoom-wrap">
-                <label data-i18n="zoom">Zoom</label>
+                <label for="zoomSlider" data-i18n="zoom">Zoom</label>
                 <input type="range" id="zoomSlider" min="0.05" max="2" step="0.05" value="1">
                 <span id="zoomLabel">100%</span>
             </div>
@@ -359,7 +359,7 @@
         <div class="scroll-area">
             <div id="zoomWrapper">
                 <div class="canvas-wrapper" id="canvasWrapper">
-                    <canvas id="canvas"></canvas>
+                    <canvas id="canvas" role="img" aria-label="Image canvas for editing - use handles to resize canvas or drag image to reposition"></canvas>
                     <div class="image-outline" id="imageOutline"></div>
                     <div class="handle handle-nw" data-dir="nw"></div>
                     <div class="handle handle-n" data-dir="n"></div>
